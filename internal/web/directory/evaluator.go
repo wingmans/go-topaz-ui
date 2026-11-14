@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
+	"github.com/aserto-dev/go-topaz-ui/internal/web/grpcurl"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/jsonview"
 	"sort"
 
@@ -57,7 +58,7 @@ func emptyDirectoryEvaluatorView(r *http.Request) evaluatorpages.EvaluatorView {
 	}
 }
 
-func (h Handler) newEvaluatorView(r *http.Request, manifest *domain.DirectoryManifest) (evaluatorpages.EvaluatorView, error) {
+func (h Handler) newEvaluatorView(r *http.Request, manifest *domain.DirectoryManifest) (evaluatorpages.EvaluatorView, string, error) {
 	query := r.URL.Query()
 	request := selectedDirectoryEvaluatorRequest(query.Get("request"))
 	manifestTypes := directoryManifestTypes(manifest)
@@ -69,7 +70,7 @@ func (h Handler) newEvaluatorView(r *http.Request, manifest *domain.DirectoryMan
 
 	objects, subjects, err := h.fetchEvaluatorOptions(r.Context(), request, objectType, subjectType, showObjectID, showSubject)
 	if err != nil {
-		return evaluatorpages.EvaluatorView{}, err
+		return evaluatorpages.EvaluatorView{}, "", err
 	}
 
 	objectID := selectedObjectID(query.Get("object_id"), objects)
@@ -109,7 +110,7 @@ func (h Handler) newEvaluatorView(r *http.Request, manifest *domain.DirectoryMan
 		}
 	}
 
-	return evaluatorpages.EvaluatorView{
+	view := evaluatorpages.EvaluatorView{
 		Request:        request,
 		RequestOptions: directoryEvaluatorRequestOptions(request),
 		ObjectTypes:    directoryEvaluatorTypeOptions(manifestTypes, objectType),
@@ -132,7 +133,56 @@ func (h Handler) newEvaluatorView(r *http.Request, manifest *domain.DirectoryMan
 		ResultJSON:     directoryEvaluatorJSON(result != nil && runError == "", result),
 		TraceJSON:      traceJSON,
 		Error:          runError,
-	}, nil
+	}
+	command := directoryEvaluatorGRPCURL(selection, query.Get("run") == "1" && canRun)
+
+	return view, command, nil
+}
+
+func directoryEvaluatorGRPCURL(selection directoryEvaluatorSelection, canRun bool) string {
+	if !canRun {
+		return ""
+	}
+
+	const service = "aserto.directory.reader.v3.Reader/"
+	command := func(method string, payload map[string]any) string {
+		return grpcurl.Command("localhost:9292", service+method, payload)
+	}
+
+	switch selection.Request {
+	case directoryEvaluatorObject:
+		return command("GetObject", map[string]any{
+			"object_type": selection.ObjectType,
+			"object_id":   selection.ObjectID,
+		})
+	case directoryEvaluatorObjects:
+		return command("GetObjects", map[string]any{"object_type": selection.ObjectType})
+	case directoryEvaluatorRelations:
+		outgoing := command("GetRelations", map[string]any{
+			"object_type": selection.ObjectType, "object_id": selection.ObjectID, "with_objects": true,
+		})
+		incoming := command("GetRelations", map[string]any{
+			"subject_type": selection.ObjectType, "subject_id": selection.ObjectID, "with_objects": true,
+		})
+
+		return outgoing + " && \\\n" + incoming
+	case directoryEvaluatorFindObjects:
+		return command("GetGraph", map[string]any{
+			"object_type": selection.ObjectType, "relation": selection.Relation,
+			"subject_type": selection.SubjectType, "subject_id": selection.SubjectID,
+		})
+	case directoryEvaluatorFindUsers:
+		return command("GetGraph", map[string]any{
+			"object_type": selection.ObjectType, "object_id": selection.ObjectID,
+			"relation": selection.Relation, "subject_type": selection.SubjectType,
+		})
+	default:
+		return command("Check", map[string]any{
+			"object_type": selection.ObjectType, "object_id": selection.ObjectID,
+			"relation": selection.Relation, "subject_type": selection.SubjectType,
+			"subject_id": selection.SubjectID, "trace": selection.Trace,
+		})
+	}
 }
 
 func (h Handler) fetchEvaluatorOptions(

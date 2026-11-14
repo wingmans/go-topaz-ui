@@ -6,7 +6,7 @@ templ EvaluatorError(message string) {
 	@partials.PageError("Could not load evaluator.", message)
 }
 
-templ EvaluatorPage(view EvaluatorView) {
+templ EvaluatorPage(view EvaluatorView, grpcurlCommand string) {
 	<section class="page page-workspace authorizer-evaluator">
 		<form class="authorizer-evaluator-form" method="get" hx-get="/ui/authorizer/evaluator" hx-target="#content" hx-trigger="change from:select, submit" hx-swap="innerHTML" hx-push-url="true">
 			<header class="page-header evaluator-toolbar">
@@ -94,7 +94,10 @@ templ EvaluatorPage(view EvaluatorView) {
 				</div>
 				<div class="authorizer-evaluator-output evaluator-output-column">
 					<div class="evaluator-json-panel">
-						<header class="evaluator-panel-header">Request</header>
+						<header class="evaluator-panel-header">
+							<span>Request</span>
+							<button class="button" type="button" data-copy-command={ grpcurlCommand } disabled?={ grpcurlCommand == "" }>Copy as grpcurl</button>
+						</header>
 						@JSONBlock(view.RequestJSON)
 					</div>
 					<div class="evaluator-json-panel">

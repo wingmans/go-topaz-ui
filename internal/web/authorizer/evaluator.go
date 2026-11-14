@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
+	"github.com/aserto-dev/go-topaz-ui/internal/web/grpcurl"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/jsonview"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/templates/base"
 	"sort"
@@ -50,7 +51,7 @@ type authorizerEvaluatorSelection struct {
 	Metrics         bool
 }
 
-func (h Handler) newEvaluatorView(r *http.Request, modules *domain.AuthorizerListPoliciesResponse) authorizerpages.EvaluatorView {
+func (h Handler) newEvaluatorView(r *http.Request, modules *domain.AuthorizerListPoliciesResponse) (authorizerpages.EvaluatorView, string) {
 	query := r.URL.Query()
 	selection := authorizerEvaluatorSelection{
 		Operation:       authorizerEvaluatorOperation(query.Get("operation")),
@@ -108,14 +109,85 @@ func (h Handler) newEvaluatorView(r *http.Request, modules *domain.AuthorizerLis
 
 		RequestJSON: authorizerEvaluatorJSON(authorizerEvaluatorPayload(selection)),
 	}
+	command := authorizerEvaluatorGRPCURL(selection, query.Get("run") == "1" && view.CanRun)
 
 	if query.Get("run") != "1" || !view.CanRun {
-		return view
+		return view, command
 	}
 
 	h.populateEvaluatorResult(r.Context(), selection, &view)
 
-	return view
+	return view, command
+}
+
+func authorizerEvaluatorGRPCURL(selection authorizerEvaluatorSelection, canRun bool) string {
+	if !canRun {
+		return ""
+	}
+
+	method := "Is"
+	switch selection.Operation {
+	case authorizerEvaluatorDecisionTree:
+		method = "DecisionTree"
+	case authorizerEvaluatorQuery:
+		method = "Query"
+	}
+
+	return grpcurl.Command(
+		"localhost:8282",
+		"aserto.authorizer.v2.Authorizer/"+method,
+		authorizerEvaluatorGRPCPayload(selection),
+	)
+}
+
+func authorizerEvaluatorGRPCPayload(selection authorizerEvaluatorSelection) map[string]any {
+	payload := map[string]any{
+		"identity_context": map[string]any{
+			"type":     selection.IdentityType,
+			"identity": selection.Identity,
+		},
+	}
+
+	policyContext := map[string]any{}
+	if selection.PolicyPath != "" {
+		policyContext["path"] = selection.PolicyPath
+	}
+	if decisions := authorizerEvaluatorDecisions(selection.Decisions); decisions != nil {
+		policyContext["decisions"] = decisions
+	}
+	if len(policyContext) > 0 {
+		payload["policy_context"] = policyContext
+	}
+
+	if resourceContext := authorizerEvaluatorObject(selection.ResourceContext); resourceContext != nil {
+		payload["resource_context"] = resourceContext
+	}
+
+	switch selection.Operation {
+	case authorizerEvaluatorDecisionTree:
+		payload["options"] = map[string]any{"path_separator": selection.PathSeparator}
+	case authorizerEvaluatorQuery:
+		payload["query"] = selection.Query
+		if selection.Input != "" {
+			payload["input"] = selection.Input
+		}
+
+		options := map[string]any{}
+		if selection.Trace {
+			options["trace"] = domain.AuthorizerTraceLevelFull
+		}
+		if selection.TraceSummary {
+			options["trace_summary"] = true
+		}
+		if selection.Metrics {
+			options["metrics"] = true
+		}
+		if len(options) > 0 {
+			payload["options"] = options
+		}
+	}
+
+	return payload
 }
 
 func (h Handler) populateEvaluatorResult(ctx context.Context, selection authorizerEvaluatorSelection, view *authorizerpages.EvaluatorView) {
@@ -174,12 +246,12 @@ func (h Handler) executeEvaluation(ctx context.Context, selection authorizerEval
 func (h Handler) handleEvaluator(w http.ResponseWriter, r *http.Request) {
 	modules, err := h.authorizer.ListPolicies(r.Context())
 
-	view := h.newEvaluatorView(r, modules)
+	view, command := h.newEvaluatorView(r, modules)
 	if err != nil {
 		view.Error = fmt.Sprintf("could not load policy modules: %v", err)
 	}
 
-	h.renderContent(w, r, "evaluator", authorizerpages.EvaluatorPage(view), base.SectionActions(authorizerEvaluatorPath, "#content"))
+	h.renderContent(w, r, "evaluator", authorizerpages.EvaluatorPage(view, command), base.SectionActions(authorizerEvaluatorPath, "#content"))
 }
 
 func authorizerEvaluatorOperation(value string) string {

@@ -124,7 +124,7 @@ func RelationsPage(view RelationsView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></label> <label><span>Object Id</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></label> <label><span>Object ID</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -132,7 +132,7 @@ func RelationsPage(view RelationsView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</label> <label><span>Object Relation</span> <select name=\"relation\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</label> <label><span>Relation</span> <select name=\"relation\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -234,7 +234,7 @@ func RelationsPage(view RelationsView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select></label> <label><span>Subject Id</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select></label> <label><span>Subject ID</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -298,7 +298,7 @@ func RelationsPage(view RelationsView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</select></label></form><div class=\"table-wrap\"><table class=\"relations-table\"><thead><tr><th scope=\"col\">Object Type</th><th scope=\"col\">Object Id</th><th scope=\"col\">Object Relation</th><th scope=\"col\">Subject Type</th><th scope=\"col\">Subject Id</th><th scope=\"col\">Subject Relation</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</select></label></form><div class=\"table-wrap\"><table class=\"relations-table\"><thead><tr><th scope=\"col\">Object Type</th><th scope=\"col\">Object ID</th><th scope=\"col\">Relation</th><th scope=\"col\">Subject Type</th><th scope=\"col\">Subject ID</th><th scope=\"col\">Subject Relation</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

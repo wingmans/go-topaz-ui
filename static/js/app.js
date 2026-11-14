@@ -11,7 +11,21 @@ const activateMenuPath = (selectedPath) => {
 		menuItem.classList.toggle("active", menuItem.getAttribute("hx-get") === selectedPath);
 	});
 };
+
 document.body.addEventListener("click", (event) => {
+	const grpcurlButton = event.target.closest("[data-copy-command]");
+	if (grpcurlButton) {
+		event.preventDefault();
+		navigator.clipboard.writeText(grpcurlButton.dataset.copyCommand)
+			.then(() => {
+				grpcurlButton.textContent = "Copied";
+			})
+			.catch(() => {
+				grpcurlButton.textContent = "Copy failed";
+			});
+		return;
+	}
+
 	const openObjectsDialog = event.target.closest("[data-open-objects-dialog]");
 	if (openObjectsDialog) {
 		event.preventDefault();

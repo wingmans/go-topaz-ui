@@ -52,13 +52,14 @@ func (h Handler) Evaluator(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	view, err := h.newEvaluatorView(r, manifest)
+	view, command, err := h.newEvaluatorView(r, manifest)
 	if err != nil {
 		view = emptyDirectoryEvaluatorView(r)
 		view.Error = err.Error()
+		command = ""
 	}
 
-	h.renderContent(w, r, "evaluator", evaluatorpages.EvaluatorPage(view), base.SectionActions(r.URL.RequestURI(), "#content"))
+	h.renderContent(w, r, "evaluator", evaluatorpages.EvaluatorPage(view, command), base.SectionActions(r.URL.RequestURI(), "#content"))
 }
 
 func (h Handler) DangerZone(w http.ResponseWriter, r *http.Request) {

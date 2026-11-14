@@ -135,7 +135,7 @@ func ObjectsPage(view ObjectsView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</select></label> <label><span>Object Id</span>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</select></label> <label><span>Object ID</span>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -153,7 +153,7 @@ func ObjectsPage(view ObjectsView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-wrap\"><table class=\"relations-table object-table\"><thead><tr><th scope=\"col\">Object Type</th><th scope=\"col\">ID</th><th scope=\"col\">Name</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"table-wrap\"><table class=\"relations-table object-table\"><thead><tr><th scope=\"col\">Object Type</th><th scope=\"col\">Object ID</th><th scope=\"col\">Display Name</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -474,7 +474,7 @@ func ObjectsCreateDialog(view ObjectsView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\"> <label class=\"modal-field\"><span>ID</span> <input name=\"object_id\" required autocomplete=\"off\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\"> <label class=\"modal-field\"><span>Object ID</span> <input name=\"object_id\" required autocomplete=\"off\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -487,7 +487,7 @@ func ObjectsCreateDialog(view ObjectsView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\"></label> <label class=\"modal-field\"><span>Name</span> <input name=\"display_name\" autocomplete=\"off\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\"></label> <label class=\"modal-field\"><span>Display Name</span> <input name=\"display_name\" autocomplete=\"off\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -597,7 +597,7 @@ func ObjectsEditDialog(view ObjectsDetailView, dialog string, errorMessage strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" readonly></label> <label class=\"modal-field\"><span>ID</span> <input value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" readonly></label> <label class=\"modal-field\"><span>Object ID</span> <input value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -610,7 +610,7 @@ func ObjectsEditDialog(view ObjectsDetailView, dialog string, errorMessage strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" readonly></label> <label class=\"modal-field\"><span>Name</span> <input name=\"display_name\" autocomplete=\"off\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" readonly></label> <label class=\"modal-field\"><span>Display Name</span> <input name=\"display_name\" autocomplete=\"off\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -844,7 +844,7 @@ func objectRelations(rows []ObjectRelation) templ.Component {
 		}
 		ctx = templ.InitializeContext(ctx)
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div class=\"table-wrap\"><table class=\"relations-table object-instance-relations\"><thead><tr><th scope=\"col\">Object</th><th scope=\"col\">Relation</th><th scope=\"col\">Subject</th><th scope=\"col\">Subject relation</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div class=\"table-wrap\"><table class=\"relations-table object-instance-relations\"><thead><tr><th scope=\"col\">Object</th><th scope=\"col\">Relation</th><th scope=\"col\">Subject</th><th scope=\"col\">Subject Relation</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

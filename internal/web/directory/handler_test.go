@@ -3,6 +3,7 @@ package directory_test
 import (
 	"context"
 	"errors"
+	"html"
 	"net/http"
 	"net/http/httptest"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/directory"
@@ -425,5 +426,29 @@ func TestEvaluatorDoesNotSelectDependentValues(t *testing.T) {
 
 	if strings.Contains(body, `<option value="beth@example.com" selected>`) {
 		t.Fatal("Evaluator() selected a dependent object without user input")
+	}
+}
+
+func TestDirectoryEvaluatorGeneratesGRPCURL(t *testing.T) {
+	handler := directory.NewHandler(objectsTestReader{}, nil)
+	request := httptest.NewRequestWithContext(
+		context.Background(),
+		http.MethodGet,
+		"/ui/directory/evaluator?request=objects&object_type=doc&run=1",
+		nil,
+	)
+	recorder := httptest.NewRecorder()
+
+	handler.Evaluator(recorder, request)
+
+	command := "grpcurl \\\n" +
+		"  -insecure \\\n" +
+		"  -d '{\"object_type\":\"doc\"}' \\\n" +
+		"  localhost:9292 \\\n" +
+		"  aserto.directory.reader.v3.Reader/GetObjects"
+	body := html.UnescapeString(recorder.Body.String())
+
+	if !strings.Contains(body, command) {
+		t.Fatalf("Evaluator response does not contain generated grpcurl command:\n%s", body)
 	}
 }

@@ -2,6 +2,7 @@ package authorizer_test
 
 import (
 	"context"
+	"html"
 	"net/http"
 	"net/http/httptest"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
@@ -130,5 +131,30 @@ func TestAuthorizerEvaluatorDoesNotSubmitSuggestedQuery(t *testing.T) {
 
 	if strings.Contains(body, `name="query" rows="5" placeholder="x = data; y = input">x = data; y = input`) {
 		t.Fatal("Evaluator populated the query suggestion as request data")
+	}
+}
+
+func TestAuthorizerEvaluatorGeneratesGRPCURL(t *testing.T) {
+	authorizer := &queryRecordingAuthorizer{}
+	handler := NewHandler(authorizer)
+	request := httptest.NewRequestWithContext(
+		context.Background(),
+		http.MethodGet,
+		"/ui/authorizer/evaluator?operation=QUERY&identity_type=IDENTITY_TYPE_NONE&query=x%20%3D%20data&run=1",
+		nil,
+	)
+	recorder := httptest.NewRecorder()
+
+	handler.Evaluator(recorder, request)
+
+	command := "grpcurl \\\n" +
+		"  -insecure \\\n" +
+		"  -d '{\"identity_context\":{\"identity\":\"\",\"type\":\"IDENTITY_TYPE_NONE\"},\"query\":\"x = data\"}' \\\n" +
+		"  localhost:8282 \\\n" +
+		"  aserto.authorizer.v2.Authorizer/Query"
+	body := html.UnescapeString(recorder.Body.String())
+
+	if !strings.Contains(body, command) {
+		t.Fatalf("Evaluator response does not contain generated grpcurl command:\n%s", body)
 	}
 }
