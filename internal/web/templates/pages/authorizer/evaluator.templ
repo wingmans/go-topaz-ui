@@ -67,7 +67,7 @@ templ EvaluatorPage(view EvaluatorView) {
 					</div>
 					if view.Operation == "DECISIONTREE" {
 						<label class="evaluator-field">
-							<span>Path separator</span>
+							<span>Path Separator</span>
 							<select class="evaluator-control" name="path_separator">
 								for _, option := range view.PathSeparators {
 									<option value={ option.Value } selected?={ option.Selected }>{ option.Label }</option>

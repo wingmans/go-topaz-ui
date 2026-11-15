@@ -51,9 +51,24 @@ Do not redesign adjacent code unless required to implement the task.
 Prefer the smallest implementation that satisfies the stated acceptance
 criteria.
 
-## Stack 
+## Stack
 
 - Backend: Go
 - Frontend: Server-rendered Go templates, HTMX 4.0
 - Styling: HTML/CSS/SVG
 - Interaction: Vanilla JavaScript (progressive enhancement)
+
+## UI terminology
+
+Use these exact labels for directory fields and table columns:
+
+- Object Type
+- Object ID
+- Relation
+- Subject Type
+- Subject ID
+- Subject Relation
+- Display Name
+
+Use uppercase “ID”. Field labels and table headers use title case.
+The directory evaluator intentionally uses “Instance” for its object selector.

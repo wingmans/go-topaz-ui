@@ -29,11 +29,11 @@ templ RelationsPage(view RelationsView) {
 				</select>
 			</label>
 			<label>
-				<span>Object Id</span>
+				<span>Object ID</span>
 				@partials.FilterSearchInput("object_id", view.ObjectID, "Any object", false)
 			</label>
 			<label>
-				<span>Object Relation</span>
+				<span>Relation</span>
 				<select name="relation" disabled?={ view.ObjectType == "" }>
 					for _, option := range view.RelationOptions {
 						<option value={ option.Value } selected?={ option.Selected }>{ option.Label }</option>
@@ -49,7 +49,7 @@ templ RelationsPage(view RelationsView) {
 				</select>
 			</label>
 			<label>
-				<span>Subject Id</span>
+				<span>Subject ID</span>
 				@partials.FilterSearchInput("subject_id", view.SubjectID, "Any subject", false)
 			</label>
 			<label>
@@ -66,10 +66,10 @@ templ RelationsPage(view RelationsView) {
 				<thead>
 					<tr>
 						<th scope="col">Object Type</th>
-						<th scope="col">Object Id</th>
-						<th scope="col">Object Relation</th>
+						<th scope="col">Object ID</th>
+						<th scope="col">Relation</th>
 						<th scope="col">Subject Type</th>
-						<th scope="col">Subject Id</th>
+						<th scope="col">Subject ID</th>
 						<th scope="col">Subject Relation</th>
 					</tr>
 				</thead>

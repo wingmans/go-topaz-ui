@@ -32,7 +32,7 @@ templ ObjectsPage(view ObjectsView) {
 					</select>
 				</label>
 				<label>
-					<span>Object Id</span>
+					<span>Object ID</span>
 					@partials.FilterSearchInput("object_id", view.ObjectID, "Any object", view.Type == "")
 				</label>
 			</form>
@@ -47,8 +47,8 @@ templ ObjectsPage(view ObjectsView) {
 						<thead>
 							<tr>
 								<th scope="col">Object Type</th>
-								<th scope="col">ID</th>
-								<th scope="col">Name</th>
+								<th scope="col">Object ID</th>
+								<th scope="col">Display Name</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -126,11 +126,11 @@ templ ObjectsCreateDialog(view ObjectsView) {
 				}
 				<input type="hidden" name="object_type" value={ view.Type }/>
 				<label class="modal-field">
-					<span>ID</span>
+					<span>Object ID</span>
 					<input name="object_id" required autocomplete="off" value={ view.ObjectsFormID }/>
 				</label>
 				<label class="modal-field">
-					<span>Name</span>
+					<span>Display Name</span>
 					<input name="display_name" autocomplete="off" value={ view.ObjectsFormName }/>
 				</label>
 			</div>
@@ -160,11 +160,11 @@ templ ObjectsEditDialog(view ObjectsDetailView, dialog string, errorMessage stri
 					<input value={ view.ObjectType } readonly/>
 				</label>
 				<label class="modal-field">
-					<span>ID</span>
+					<span>Object ID</span>
 					<input value={ view.ObjectID } readonly/>
 				</label>
 				<label class="modal-field">
-					<span>Name</span>
+					<span>Display Name</span>
 					<input name="display_name" autocomplete="off" value={ view.DisplayName }/>
 				</label>
 			</div>
@@ -217,7 +217,7 @@ templ objectRelations(rows []ObjectRelation) {
 					<th scope="col">Object</th>
 					<th scope="col">Relation</th>
 					<th scope="col">Subject</th>
-					<th scope="col">Subject relation</th>
+					<th scope="col">Subject Relation</th>
 				</tr>
 			</thead>
 			<tbody>
