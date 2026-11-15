@@ -6,8 +6,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"planbee/internal/web/domain"
-	"planbee/internal/web/topaz"
+
+	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
+	"github.com/aserto-dev/go-topaz-ui/internal/web/topaz"
 
 	"github.com/aserto-dev/go-aserto"
 	"github.com/aserto-dev/go-aserto/az"
@@ -20,6 +21,13 @@ type Client struct {
 	Authorizer      domain.Authorizer
 	DirectoryReader domain.DirectoryReader
 	DirectoryWriter domain.DirectoryWriter
+}
+
+// Config contains the Topaz client configuration supplied by an embedding
+// application such as the Topaz CLI.
+type Config struct {
+	Authorizer aserto.Config
+	Directory  aserto.Config
 }
 
 // NewFromEnv creates the gRPC clients before the HTTP server starts.
@@ -66,6 +74,38 @@ func NewFromEnv() (*Client, func() error, error) {
 	closeClients := func() error {
 		directoryErr := directoryClient.Close()
 		authorizerErr := client.Close()
+
+		return errors.Join(directoryErr, authorizerErr)
+	}
+
+	return clientSet, closeClients, nil
+}
+
+// NewFromConfig creates the gRPC clients from explicit Topaz client settings.
+func NewFromConfig(cfg *Config) (*Client, func() error, error) {
+	authorizerConn, err := cfg.Authorizer.Connect()
+	if err != nil {
+		return nil, nil, fmt.Errorf("create authorizer gRPC client: %w", err)
+	}
+	authorizerClient := az.FromConnection(authorizerConn)
+
+	directoryClient, err := (&ds.Config{Config: &cfg.Directory}).Connect()
+	if err != nil {
+		_ = authorizerConn.Close()
+
+		return nil, nil, fmt.Errorf("create directory gRPC client: %w", err)
+	}
+
+	directory := topaz.NewDirectory(directoryClient)
+	clientSet := &Client{
+		Authorizer:      topaz.NewAuthorizer(authorizerClient),
+		DirectoryReader: directory,
+		DirectoryWriter: directory,
+	}
+
+	closeClients := func() error {
+		directoryErr := directoryClient.Close()
+		authorizerErr := authorizerConn.Close()
 
 		return errors.Join(directoryErr, authorizerErr)
 	}
