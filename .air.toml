@@ -2,8 +2,8 @@ root = "."
 tmp_dir = "bin"
 
 [build]
-cmd = "go tool templ generate && go build -o ./bin/planbee ."
-entrypoint = ["./bin/planbee"]
+cmd = "go tool templ generate && go build -o ./bin/topaz-ui-dev ./cmd/topaz-ui-dev"
+entrypoint = ["./bin/topaz-ui-dev"]
 delay = 1000
 exclude_dir = ["bin", "tmp", ".git"]
 exclude_file = []

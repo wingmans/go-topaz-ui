@@ -3,7 +3,7 @@
 build:
 # 	golangci-lint run --fix
 	go tool templ generate
-	go build -o ./bin/planbee .
+	go build ./...
 
 generate:
 	go tool templ generate
@@ -18,7 +18,7 @@ test:
 	go test ./...
 
 run:
-	go run .
+	go run ./cmd/topaz-ui-dev
 
-serve-dev: generate build
+serve-dev:
 	air
