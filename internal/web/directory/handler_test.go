@@ -6,10 +6,11 @@ import (
 	"html"
 	"net/http"
 	"net/http/httptest"
-	"github.com/aserto-dev/go-topaz-ui/internal/web/directory"
-	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
 	"strings"
 	"testing"
+
+	"github.com/aserto-dev/go-topaz-ui/internal/web/directory"
+	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
 )
 
 type emptyDirectoryBackend struct{}
@@ -101,6 +102,58 @@ func TestRelationsPopulatesDependentDropdowns(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Errorf("Relations() response does not contain %q", want)
 		}
+	}
+}
+
+type recordingRelationsTestReader struct {
+	relationsTestReader
+
+	objectType  string
+	objectID    string
+	subjectType string
+	subjectID   string
+}
+
+func (r *recordingRelationsTestReader) GetRelations(
+	_ context.Context,
+	objectType, objectID, _ string, subjectType, subjectID, _, _ string,
+) (*domain.DirectoryRelationsResponse, error) {
+	r.objectType = objectType
+	r.objectID = objectID
+	r.subjectType = subjectType
+	r.subjectID = subjectID
+
+	return &domain.DirectoryRelationsResponse{}, nil
+}
+
+// TestRelationsClearsIDWithoutType verifies that the object and subject IDs are cleared when their corresponding types are not specified.
+// added for regression to ensure that IDs are not sent without their types.
+func TestRelationsClearsIDWithoutType(t *testing.T) {
+	tests := []struct {
+		name       string
+		requestURL string
+	}{
+		{name: "object ID", requestURL: "/ui/directory/relations?object_id=a"},
+		{name: "subject ID", requestURL: "/ui/directory/relations?subject_id=a"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			reader := &recordingRelationsTestReader{}
+			handler := directory.NewHandler(reader, nil)
+			request := httptest.NewRequestWithContext(context.Background(), http.MethodGet, test.requestURL, nil)
+			recorder := httptest.NewRecorder()
+
+			handler.Relations(recorder, request)
+
+			if reader.objectType != "" || reader.objectID != "" {
+				t.Errorf("GetRelations() object filter = %q:%q, want empty", reader.objectType, reader.objectID)
+			}
+
+			if reader.subjectType != "" || reader.subjectID != "" {
+				t.Errorf("GetRelations() subject filter = %q:%q, want empty", reader.subjectType, reader.subjectID)
+			}
+		})
 	}
 }
 

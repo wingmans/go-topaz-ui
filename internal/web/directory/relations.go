@@ -3,6 +3,7 @@ package directory
 import (
 	"net/http"
 	"net/url"
+
 	"github.com/aserto-dev/go-topaz-ui/internal/web/domain"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/render"
 	"github.com/aserto-dev/go-topaz-ui/internal/web/templates/base"
@@ -27,10 +28,30 @@ func (h Handler) Relations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	relationOptions := manifestRelationOptions(manifest, objectType, relation)
-	subjectRelationOptions := manifestRelationOptions(manifest, subjectType, subjectRelation)
+	// normalize relation and subject relation based on manifest options (server side)
 	objectTypeOptions := manifestTypeOptions(manifest, objectType)
 	subjectTypeOptions := manifestTypeOptions(manifest, subjectType)
+
+	if objectType != "" && !containsTypeOption(objectTypeOptions, objectType) {
+		objectType = ""
+		objectTypeOptions = manifestTypeOptions(manifest, "")
+	}
+	if objectType == "" {
+		objectID = ""
+		relation = ""
+	}
+
+	if subjectType != "" && !containsTypeOption(subjectTypeOptions, subjectType) {
+		subjectType = ""
+		subjectTypeOptions = manifestTypeOptions(manifest, "")
+	}
+	if subjectType == "" {
+		subjectID = ""
+		subjectRelation = ""
+	}
+
+	relationOptions := manifestRelationOptions(manifest, objectType, relation)
+	subjectRelationOptions := manifestRelationOptions(manifest, subjectType, subjectRelation)
 
 	if relation != "" && !containsTypeOption(relationOptions, relation) {
 		relation = ""

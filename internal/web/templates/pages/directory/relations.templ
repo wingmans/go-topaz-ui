@@ -30,7 +30,7 @@ templ RelationsPage(view RelationsView) {
 			</label>
 			<label>
 				<span>Object ID</span>
-				@partials.FilterSearchInput("object_id", view.ObjectID, "Any object", false)
+				@partials.FilterSearchInput("object_id", view.ObjectID,	"Any object", view.ObjectType == "")
 			</label>
 			<label>
 				<span>Relation</span>
@@ -50,7 +50,7 @@ templ RelationsPage(view RelationsView) {
 			</label>
 			<label>
 				<span>Subject ID</span>
-				@partials.FilterSearchInput("subject_id", view.SubjectID, "Any subject", false)
+				@partials.FilterSearchInput("subject_id", view.SubjectID, "Any subject", view.SubjectType == "")
 			</label>
 			<label>
 				<span>Subject Relation</span>
